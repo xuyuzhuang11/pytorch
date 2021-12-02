@@ -9244,10 +9244,6 @@ op_db: List[OpInfo] = [
     OpInfo('linalg.cholesky',
            aten_name='linalg_cholesky',
            dtypes=floating_and_complex_types(),
-           # TODO: RuntimeError: While computing batched gradients,
-           # got: vmap: Calling Tensor.as_strided is not supported
-           # unless the batch dims being vmapped over are at the front of the tensor (in memory layout).
-           check_batched_gradgrad=False,
            supports_forward_ad=True,
            sample_inputs_func=sample_inputs_linalg_cholesky,
            gradcheck_wrapper=gradcheck_wrapper_hermitian_input,
@@ -9259,7 +9255,6 @@ op_db: List[OpInfo] = [
     OpInfo('linalg.cholesky_ex',
            aten_name='linalg_cholesky_ex',
            dtypes=floating_and_complex_types(),
-           check_batched_gradgrad=False,
            supports_forward_ad=True,
            sample_inputs_func=sample_inputs_linalg_cholesky,
            gradcheck_wrapper=gradcheck_wrapper_hermitian_input,
@@ -9269,7 +9264,6 @@ op_db: List[OpInfo] = [
            aten_name='linalg_cond',
            dtypes=floating_and_complex_types(),
            sample_inputs_func=sample_inputs_linalg_cond,
-           check_batched_gradgrad=False,
            gradcheck_nondet_tol=GRADCHECK_NONDET_TOL,
            decorators=[skipCUDAIfNoMagmaAndNoCusolver, skipCUDAIfRocm, skipCPUIfNoLapack],
            ),
@@ -9277,7 +9271,6 @@ op_db: List[OpInfo] = [
            aten_name='linalg_eig',
            op=torch.linalg.eig,
            dtypes=floating_and_complex_types(),
-           check_batched_gradgrad=False,
            supports_forward_ad=True,
            sample_inputs_func=sample_inputs_linalg_eig,
            decorators=[skipCUDAIfNoMagma, skipCUDAIfRocm, skipCPUIfNoLapack],
@@ -9289,7 +9282,6 @@ op_db: List[OpInfo] = [
            aten_name='linalg_eigvals',
            op=torch.linalg.eigvals,
            dtypes=floating_and_complex_types(),
-           check_batched_gradgrad=False,
            sample_inputs_func=sample_inputs_linalg_invertible,
            decorators=[skipCUDAIfNoMagma, skipCUDAIfRocm, skipCPUIfNoLapack],
            skips=(
@@ -9301,7 +9293,6 @@ op_db: List[OpInfo] = [
     OpInfo('linalg.eigh',
            aten_name='linalg_eigh',
            dtypes=floating_and_complex_types(),
-           check_batched_gradgrad=False,
            supports_forward_ad=True,
            sample_inputs_func=sample_inputs_linalg_eigh,
            gradcheck_wrapper=gradcheck_wrapper_hermitian_input,
@@ -9316,12 +9307,9 @@ op_db: List[OpInfo] = [
     OpInfo('linalg.eigvalsh',
            aten_name='linalg_eigvalsh',
            dtypes=floating_and_complex_types(),
-           check_batched_gradgrad=False,
            sample_inputs_func=sample_inputs_linalg_eigh,
            gradcheck_wrapper=gradcheck_wrapper_hermitian_input,
            supports_forward_ad=True,
-           # See https://github.com/pytorch/pytorch/issues/66357
-           check_batched_forward_grad=False,
            decorators=[skipCUDAIfNoMagma, skipCUDAIfRocm, skipCPUIfNoLapack],
            skips=(
                # Gradcheck for complex is not implemented yet
@@ -9378,7 +9366,6 @@ op_db: List[OpInfo] = [
            dtypes=floating_and_complex_types(),
            supports_inplace_autograd=False,
            supports_forward_ad=True,
-           check_batched_grad=False,
            decorators=[skipCUDAIfNoMagmaAndNoCusolver, skipCPUIfNoLapack, skipCUDAIfRocm],
            sample_inputs_func=sample_inputs_linalg_matrix_power,
            gradcheck_nondet_tol=GRADCHECK_NONDET_TOL,
@@ -9393,12 +9380,7 @@ op_db: List[OpInfo] = [
            dtypes=all_types_and_complex_and(torch.half, torch.bfloat16),
            dtypesIfCUDA=floating_and_complex_types_and(torch.half, *[torch.bfloat16] if CUDA11OrLater else []),
            supports_inplace_autograd=False,
-           # Batched grad checks fail for empty input tensors (see https://github.com/pytorch/pytorch/issues/53407)
-           check_batched_grad=False,
-           check_batched_gradgrad=False,
            supports_forward_ad=True,
-           # https://github.com/pytorch/pytorch/issues/66357
-           check_batched_forward_grad=False,
            sample_inputs_func=sample_inputs_linalg_multi_dot,
            gradcheck_nondet_tol=GRADCHECK_NONDET_TOL,
            skips=(
@@ -9436,12 +9418,7 @@ op_db: List[OpInfo] = [
            aten_name='linalg_qr',
            op=torch.linalg.qr,
            dtypes=floating_and_complex_types(),
-           # batched gradients do not work for empty inputs
-           # https://github.com/pytorch/pytorch/issues/50743#issuecomment-767376085
-           check_batched_gradgrad=False,
            supports_forward_ad=True,
-           # See https://github.com/pytorch/pytorch/issues/66357
-           check_batched_forward_grad=False,
            sample_inputs_func=sample_inputs_linalg_qr,
            decorators=[skipCUDAIfNoMagma, skipCUDAIfRocm, skipCPUIfNoLapack]),
     OpInfo('linalg.slogdet',
@@ -9600,8 +9577,6 @@ op_db: List[OpInfo] = [
            dtypes=floating_and_complex_types(),
            check_batched_gradgrad=False,
            supports_forward_ad=True,
-           # See https://github.com/pytorch/pytorch/issues/66357
-           check_batched_forward_grad=False,
            sample_inputs_func=sample_inputs_lu_solve,
            decorators=[skipCUDAIfNoMagma, skipCUDAIfRocm, skipCPUIfNoLapack],
            skips=(
@@ -10269,8 +10244,6 @@ op_db: List[OpInfo] = [
            sample_inputs_func=partial(sample_inputs_nn_pad, mode='circular'),
            supports_forward_ad=True,
            check_batched_grad=False,
-           # https://github.com/pytorch/pytorch/issues/66357
-           check_batched_forward_grad=False,
            skips=(
                # Doesn't have a corresponding aten operator.
                # RuntimeError: falseINTERNAL ASSERT FAILED at
@@ -11760,8 +11733,8 @@ op_db: List[OpInfo] = [
                                                                 *[torch.bfloat16] if (SM60OrLater and CUDA11OrLater) else []),
            supports_out=False,
            supports_forward_ad=True,
-           check_batched_forward_grad=False,
            # See https://github.com/pytorch/pytorch/issues/66357
+           check_batched_forward_grad=False,
            sample_inputs_func=sample_inputs_einsum,
            skips=(
                # test does not work with passing lambda for op
