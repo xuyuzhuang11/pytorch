@@ -53,8 +53,6 @@ inline torch::lazy::NodePtr GenericOp(torch::lazy::OpKind op,
                            hash_seed);
 }
 
-torch::lazy::NodePtr Pow(const torch::lazy::Value& input, const torch::lazy::Value& exponent);
-
 }  // namespace ops
 }  // namespace ir
 }  // namespace torch_lazy_tensors
